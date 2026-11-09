@@ -130,11 +130,11 @@ window.SITE = {
   // ANIMAZIONE DI CARICAMENTO dopo la password giusta
   loaderSeconds: 3.6,
   loaderMessages: [
-    'Preparo il gloss…',
+    'Preparo le candeline…',
     'Impasto lo slime…',
-    'Gonfio gli squishy…',
+    'Sistemo i trucchi…',
     'Accendo le candeline…',
-    'Ultimi ritocchi di glitter…',
+    'Appendo le foto…',
     'Quasi pronto, amore ♥',
   ],
 
@@ -142,10 +142,75 @@ window.SITE = {
   gift: {
     teaser: 'Un ultimo regalo, il più grande. Tocca il pacco per aprirlo.',
     title: 'Il tuo regalo più grande',
-    text: 'Qui scriverai di che regalo si tratta (lo stai ancora scegliendo!). Puoi raccontare perché lo hai scelto, quando lo riceverà e cosa significa per voi.',
+    text: '.',
     image: '',                 // foto del regalo o vostra, es. 'assets/img/regalo.jpg' (vuoto = nessuna foto)
     caption: 'per te',
     // music: { spotify: 'https://open.spotify.com/…', file: '' },  // facoltativo: una canzone diversa solo per questa pagina (altrimenti usa la stessa della festa)
     link: { label: '', url: '' }, // un pulsante opzionale, es. { label: 'Guarda il video', url: 'https://…' }
+  },
+
+  // ===== MAPPA DEI NOSTRI POSTI: x e y vanno da 0 a 100 (0,0 = in alto a sinistra). I pin sono uniti nell'ordine della lista. =====
+  places: {
+    title: 'I nostri posti',
+    text: 'Il nostro viaggio, un pin alla volta. Tocca i pin per scoprire i ricordi.',
+    places: [
+      { name: 'Lo stappo di Ale', note: 'dove tutto è iniziato per noi,dove ci siamo ri-visti', x: 20, y: 62 },
+      { name: 'Unior', note: 'Dove ti venni a trovare per la prima volta da soli', x: 46, y: 34 },
+      { name: 'Il primo ti amo', note: 'Nel nostro posto, dopo il mio compleanno', x: 72, y: 58 },
+      { name: 'Il nostro primo viaggio', note: 'A Malaga,la nostra città del cuore', x: 52, y: 82 },
+    ],
+  },
+
+  // ===== 22 MOTIVI PER CUI TI AMO: tante bolle quante sono le frasi della lista =====
+  reasons: {
+    title: '22 motivi per cui ti amo',
+    text: 'Tocca le bolle una a una: dentro ognuna c\'è un motivo.',
+    done: 'E ce ne sarebbero altri mille ♥',
+    items: [
+      'Perché sei speciale.',
+      'Perché sei bellissima .',
+      'Perché sei divertente.',
+      'Perché sei curiosa e intelligente.',
+      'Perché con te ogni posto diventa casa.',
+      'Perché non ti arrendi, nemmeno quando è difficile.',
+      'Perché sei un po pazza.',
+      'Perché ricordi i dettagli che per gli altri non contano.',
+      'Perché mi capisci anche quando non parlo.',
+      'Perché sei la mia persona preferita con cui non fare niente.',
+      'Perché hai uno stile che è solo tuo.',
+      'Perché dai sempre una seconda possibilità allo slime venuto male.',
+      'Perché sei dolce solo con me.',
+      'Perché ogni giorno ti amo di più.',
+      'Perché mi hai insegnato tanto.',
+      'Perché sei coraggiosa quando serve.',
+      'Perché il tuo abbraccio sistema tutto.',
+      'Perché hai riempito la mia vita.',
+      'Perché con te posso essere me stesso.',
+      'Perché ti guardo e mi innamoro ogni volta sempre di più.',
+      'Perché abbiamo ancora mille cose da fare insieme.',
+      'Perché sei tu.',
+    ],
+  },
+
+  // ===== QUIZ SU DI NOI: answer = numero della risposta giusta (0 = la prima) =====
+  quiz: {
+    title: 'Quanto ci conosciamo?',
+    text: 'Poche domande su di noi. Nessuna pressione, ma qualcuna è insidiosa.',
+    questions: [
+      { q: 'Dove ci siamo re-incontrati?', options: ['Allo stappo di Ale', 'All\'università', 'In spiaggia', 'Alla festa di un parente'], answer: 0, ok: 'Esatto! Destino puro.', ko: 'Quasi… era allo stappo di Ale.' },
+      { q: 'Quando ci siamo fidanzati?', options: ['23 marzo 2024', '18 novembre 2023', '14 febbraio 2024', '1 giugno 2024'], answer: 0, ok: 'Il giorno più bello!', ko: 'Era il 23 marzo 2024.' },
+      { q: 'Quando ti ho detto ti amo per la prima volta?', options: ['20 marzo 2024', '19 marzo 2024', '23 marzo 2024', '22 marzo 2024'], answer: 0, ok: 'Sì, proprio quello!', ko: 'Ma come, non te lo ricordi?' },
+      { q: 'Quale canzone mi hai fatto ascoltare 5 volte in macchina la prima volta che tornavo da solo?', options: ['Iris', 'End of beginning', 'Nessuna', 'Dubbi non ho'], answer: 0, ok: 'Brava, la canticchiamo sempre.', ko: 'Era quella di sottofondo!' },
+    ],
+    results: ['Dobbiamo ripassare i nostri ricordi ♥', 'Ci conosciamo bene!', 'Sei la mia persona, lo sapevo ♥'],
+  },
+
+ 
+
+  // ===== LETTERA FINALE: si scrive da sola dopo aver aperto la busta. \n\n = nuovo paragrafo =====
+  letter: {
+    title: 'Una lettera per te',
+    intro: 'Tocca la busta per aprirla.',
+    text: 'Zaira,\n\nventidue anni fa è nata la persona che oggi ho il privilegio di chiamare amore. Non so se ti rendi conto di quanto sei speciale per me e di quanto ti ami.\n\nBuon compleanno amore mio, la mia stella.',
   },
 };
