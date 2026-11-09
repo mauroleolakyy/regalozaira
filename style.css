@@ -1,0 +1,285 @@
+:root {
+  --ink: #fff4f8;
+  --gold: #ffc2e2;      /* rosa caramella: accento */
+  --hl: #ffe36e;        /* giallo evidenziatore */
+  --plum: #3a0b2a;
+  --display: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  --hand: "Caveat", "Comic Sans MS", cursive;
+  --sans: "DM Sans", system-ui, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans); color: var(--ink); line-height: 1.65; overflow-x: hidden;
+  /* luce in alto e ombra in basso sopra il colore dell'età: il colore cambia, la profondità resta */
+  background-image: linear-gradient(170deg, rgba(255, 255, 255, .12), rgba(30, 0, 30, .32));
+  background-attachment: fixed;
+}
+
+#bar { position: fixed; top: 0; left: 0; height: 5px; width: 0; background: var(--hl); z-index: 20; border-radius: 0 6px 6px 0; }
+
+/* Numero degli anni gigante, rotondo come una gocciolina di slime */
+#age {
+  position: fixed; left: 3vw; bottom: -2vw; z-index: 0;
+  font: 600 clamp(9rem, 32vw, 26rem)/1 var(--display);
+  color: var(--ink); opacity: .13; pointer-events: none; user-select: none;
+}
+
+.hero, .chapter { position: relative; z-index: 1; }
+
+/* Slime che cola dall'alto (usato in hero e nella schermata password) */
+.drip {
+  position: absolute; top: 0; left: 0; width: 100%; height: clamp(80px, 13vw, 170px);
+  transform-origin: top; animation: ooze 2.2s cubic-bezier(.3, 1.25, .5, 1) both; pointer-events: none;
+}
+@keyframes ooze { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+
+/* Hero */
+.hero {
+  min-height: 100svh; display: grid; align-content: start; justify-items: start; gap: .6rem;
+  padding: clamp(100px, 17vw, 210px) 8vw 14vw;
+}
+.wall { display: flex; flex-wrap: wrap; gap: clamp(.6rem, 2.5vw, 2rem); margin-bottom: 2.2rem; }
+.hero h1 { font: 600 clamp(3rem, 11vw, 9rem)/.95 var(--display); max-width: 11ch; letter-spacing: -.01em; }
+.hero .for { font: 600 1.6rem var(--hand); color: var(--gold); }
+.hero .lead { max-width: 36ch; opacity: .9; margin-top: .6rem; }
+.hint { margin-top: 2rem; width: 3px; height: 64px; border-radius: 3px; background: var(--gold); opacity: .8; transform-origin: top; animation: hint 1.8s ease-in-out infinite; }
+@keyframes hint { 0% { transform: scaleY(0); } 60% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
+
+/* Nastro con le parole del suo mondo */
+.ticker { position: relative; z-index: 2; overflow: hidden; background: #ff4fa3; color: #fff; transform: rotate(-1.6deg); margin: 0 -3vw; box-shadow: 0 8px 24px -10px rgba(40, 0, 25, .6); }
+.track { display: flex; width: max-content; animation: slide 28s linear infinite; font: 600 1.3rem/1 var(--display); padding: .9rem 0; white-space: nowrap; }
+.track span { padding-right: 1rem; }
+@keyframes slide { to { transform: translateX(-50%); } }
+
+/* Capitoli */
+.chapter { min-height: 100svh; padding: 10vh 8vw; display: grid; grid-template-columns: 1fr 1fr; gap: 6vw; align-items: center; }
+.chapter.flip .copy { order: 2; }
+.copy { max-width: 36rem; position: relative; z-index: 1; }
+.year { color: var(--gold); font: 600 1.5rem var(--hand); margin-bottom: .3rem; }
+.copy h2 { font: 600 clamp(2rem, 5vw, 3.6rem)/1.05 var(--display); margin-bottom: 1.2rem; }
+.copy p { font-size: 1.1rem; }
+
+.art { position: relative; width: 100%; max-width: 480px; justify-self: center; z-index: 1; }
+.art svg { width: 100%; height: auto; overflow: visible; }
+.art svg .p { transition: opacity .8s; }
+.chapter:not(.in) .art svg .p { opacity: 0; }
+.art svg .p > g { transform-box: fill-box; transform-origin: center; }
+.chapter.in .art svg .p > g { animation: pop .8s cubic-bezier(.2, 1.4, .4, 1) both; animation-delay: var(--d, 0s); }
+@keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+.flame { animation: flick .4s ease-in-out infinite alternate; transform-origin: center bottom; transform-box: fill-box; }
+@keyframes flick { to { transform: scale(.85, 1.15) rotate(3deg); } }
+
+/* Polaroid */
+.polaroid {
+  --w: clamp(96px, 22vw, 220px);
+  position: relative; width: var(--w); padding: .6rem .6rem 0; background: #fffaf6; color: #5a1038;
+  transform: rotate(var(--r, 0deg)); box-shadow: 0 18px 30px -12px rgba(40, 0, 25, .65);
+  transition: transform .3s cubic-bezier(.2, 1.3, .4, 1);
+}
+.polaroid:hover { transform: rotate(0deg) scale(1.05); z-index: 3; }
+.polaroid::before { /* nastro washi */
+  content: ""; position: absolute; top: -11px; left: 50%; width: 42%; height: 22px; translate: -50% 0; rotate: -4deg;
+  background: repeating-linear-gradient(45deg, rgba(255, 79, 163, .8) 0 6px, rgba(255, 194, 226, .8) 6px 12px);
+}
+.polaroid .ph { aspect-ratio: 1; overflow: hidden; background: #f3d9e6; display: grid; place-items: center; }
+.polaroid img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.polaroid .ph.empty {
+  background: repeating-linear-gradient(135deg, #ffd1e8 0 10px, #ffe4f1 10px 20px);
+  font: 600 clamp(.8rem, 1.4vw, 1.05rem) var(--hand); text-align: center; padding: .5rem; color: #b3123f;
+}
+.polaroid .cap { font: 600 clamp(1rem, 2vw, 1.5rem)/1 var(--hand); text-align: center; padding: .55rem .2rem .7rem; font-size: clamp(1rem, 2vw, 1.5rem); }
+.polaroid.corner { --w: 46%; position: absolute; right: -4%; bottom: -10%; z-index: 2; }
+
+/* Sticker */
+.sticker { position: absolute; z-index: 0; width: var(--s); rotate: var(--rot); animation: bob 6s ease-in-out infinite var(--dl); cursor: pointer; opacity: .9; }
+.sticker svg { width: 100%; height: auto; display: block; transform-origin: center bottom; }
+@keyframes bob { 50% { translate: 0 -12px; } }
+.sticker svg.sq { animation: squash .6s ease both; }
+@keyframes squash { 25% { scale: 1.35 .6; } 50% { scale: .8 1.25; } 75% { scale: 1.1 .92; } }
+
+/* Finale */
+.finale { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+.finale h2 { font-size: clamp(2.4rem, 7vw, 5.5rem); }
+.finale .copy { max-width: 40rem; }
+.sign { margin-top: 1.5rem; color: var(--gold); font: 600 1.8rem var(--hand); }
+#party, #lockForm button {
+  font: 600 1.1rem var(--display); color: #fff; background: #ff4fa3; border: 0; border-radius: 999px; padding: .9rem 2.2rem;
+  cursor: pointer; box-shadow: 0 6px 0 #b3125f; transition: transform .15s;
+}
+#party { margin-top: 2.5rem; }
+#party:hover, #lockForm button:hover { filter: brightness(1.08); }
+#party:active, #lockForm button:active { transform: translateY(5px) scale(1.03, .94); box-shadow: 0 1px 0 #b3125f; } /* effetto squishy */
+:focus-visible { outline: 3px solid var(--hl); outline-offset: 4px; }
+
+#confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 30; }
+
+/* Schermata password e giochino delle carte */
+body.locked #bar, body.locked #age, body.locked #stage { display: none; }
+body.locked { overflow: hidden; }
+#lock { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: clamp(110px, 16vw, 190px) 6vw 6vw; background: #5e0f3d; overflow-y: auto; }
+#lock[hidden] { display: none; }
+#lockForm { width: min(30rem, 100%); display: grid; gap: 1rem; text-align: center; position: relative; }
+#lockForm h1 { font: 600 clamp(2.4rem, 9vw, 3.6rem)/1 var(--display); }
+#lockText { opacity: .9; }
+#lockForm input {
+  font: 500 1.1rem var(--sans); color: var(--ink); text-align: center;
+  background: rgba(255, 244, 248, .1); border: 2px solid rgba(255, 194, 226, .5); border-radius: 999px; padding: .9rem 1.2rem;
+}
+#lockForm input::placeholder { color: rgba(255, 244, 248, .55); }
+#err { min-height: 1.6em; color: #ffd0c8; }
+#clues { list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+.clue {
+  width: 100%; min-height: 7.5rem; padding: 1rem; cursor: pointer; font: 400 1rem/1.45 var(--sans); color: var(--ink); text-align: left;
+  background: rgba(255, 244, 248, .08); border: 2px dashed rgba(255, 194, 226, .55); border-radius: 22px;
+}
+.clue:not(.open) { font: 600 2.4rem var(--display); text-align: center; color: var(--gold); }
+.clue:not(.open):hover { background: rgba(255, 244, 248, .16); }
+.clue:not(.open):active { transform: scale(1.06, .92); }
+.clue.open { border-style: solid; background: rgba(255, 244, 248, .12); animation: flip .45s ease both; }
+.clue mark { background: var(--hl); color: #3a0b2a; font-weight: 500; padding: 0 .3em; border-radius: 6px; }
+@keyframes flip { from { transform: rotateY(90deg); } to { transform: rotateY(0); } }
+#found { font: 600 1.25rem var(--hand); color: var(--gold); }
+
+@media (max-width: 760px) {
+  .chapter { grid-template-columns: 1fr; padding: 12vh 7vw 16vh; gap: 2.5rem; }
+  .chapter.flip .copy { order: 0; }
+  .art { max-width: 320px; }
+  .sticker { opacity: .35; }
+  #clues { grid-template-columns: 1fr; }
+  .clue { min-height: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .hint, .flame, .track, .sticker, .drip, .clue.open { animation: none; }
+  .chapter.in .art svg .p > g, .sticker svg.sq { animation: none; }
+}
+
+/* Etichetta della fase della vita */
+#stage {
+  position: fixed; top: 14px; right: 14px; z-index: 20; padding: .25rem .9rem .35rem;
+  font: 600 1.35rem/1.2 var(--hand); color: #fff; background: rgba(255, 255, 255, .16);
+  border: 1.5px solid rgba(255, 255, 255, .45); border-radius: 999px; backdrop-filter: blur(6px);
+}
+#stage[hidden] { display: none; }
+
+/* Album di polaroid */
+.album { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 3.5rem; }
+.shelf { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(1.4rem, 3.5vw, 2.8rem); max-width: 1100px; position: relative; z-index: 1; }
+.polaroid.big { --w: clamp(130px, 22vw, 240px); }
+@media (max-width: 760px) { .polaroid.big { --w: clamp(120px, 40vw, 190px); } }
+
+/* Contatore dei giorni insieme */
+.counter { margin-top: 1.8rem; padding: 1.2rem 1.4rem; max-width: 26rem; background: rgba(255, 255, 255, .12); border: 2px solid rgba(255, 194, 226, .5); border-radius: 28px; }
+.counter .cl { font: 600 1.5rem var(--hand); color: var(--gold); line-height: 1; }
+.counter .big { font: 600 1.4rem/1.1 var(--display); }
+.counter .big b { font-size: clamp(3.2rem, 9vw, 5.2rem); color: var(--hl); letter-spacing: -.02em; margin-right: .15em; }
+.counter .cs { font-size: 1rem; opacity: .9; margin: .3rem 0 .9rem; }
+.counter .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; }
+.counter .tiles div { text-align: center; padding: .55rem .3rem; border-radius: 18px; background: rgba(255, 79, 163, .55); font-size: .9rem; }
+.counter .tiles b { display: block; font: 600 1.9rem/1.1 var(--display); font-variant-numeric: tabular-nums; }
+
+/* Torta con le candeline */
+.cake { margin-top: 2rem; display: grid; justify-items: center; gap: .5rem; }
+.cake svg { width: min(100%, 460px); height: auto; overflow: visible; }
+.candle { cursor: pointer; }
+.candle:focus-visible { outline: none; }
+.candle:focus-visible rect:nth-child(2) { stroke: var(--hl); stroke-width: 3; }
+.candle:not(.lit) .flame { display: none; }
+.smoke { fill: #fff; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.candle.puff .smoke { animation: smoke 1.4s ease-out; }
+@keyframes smoke { 0% { opacity: .75; transform: translateY(0) scale(.6); } 100% { opacity: 0; transform: translateY(-30px) scale(2.4); } }
+#cakeCount { font: 600 1.5rem var(--hand); color: var(--gold); min-height: 1.5em; }
+.cakeNote { font-size: .95rem; opacity: .85; max-width: 30rem; }
+.cakeBtns { display: flex; gap: .7rem; flex-wrap: wrap; justify-content: center; }
+.cakeBtns button { font: 600 1rem var(--display); color: #fff; background: rgba(255, 255, 255, .16); border: 2px solid rgba(255, 194, 226, .6); border-radius: 999px; padding: .55rem 1.3rem; cursor: pointer; }
+.cakeBtns button[hidden] { display: none; }
+.cakeBtns button:hover { background: rgba(255, 255, 255, .26); }
+
+/* Musica: piccola e trasparente */
+#music {
+  position: fixed; right: 12px; bottom: 12px; z-index: 26; width: 42px; height: 42px; border-radius: 50%; cursor: pointer;
+  font: 600 1.15rem/1 var(--display); color: #fff; background: rgba(255, 79, 163, .7); border: 1.5px solid rgba(255, 255, 255, .55);
+  backdrop-filter: blur(6px); box-shadow: 0 4px 14px -4px rgba(40, 0, 25, .6); opacity: .85; transition: opacity .2s, transform .15s;
+}
+#music:hover, #music.on { opacity: 1; }
+#music[hidden] { display: none; }
+#music:active { transform: scale(1.08, .92); }
+#music.on { animation: bob2 1.6s ease-in-out infinite; }
+@keyframes bob2 { 50% { transform: scale(1.08); } }
+#musicPanel {
+  position: fixed; right: 12px; bottom: 62px; z-index: 25; width: min(280px, calc(100vw - 24px)); padding: 4px;
+  background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .25); border-radius: 18px; backdrop-filter: blur(8px);
+}
+#musicPanel iframe { display: block; border-radius: 14px; opacity: .8; transition: opacity .2s; }
+#musicPanel:hover iframe { opacity: 1; }
+body.locked #music, body.locked #musicPanel { display: none; }
+
+
+/* Gratta e vinci */
+.coupons { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 2.5rem; }
+.ticketgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 260px)); gap: 1.4rem; position: relative; z-index: 1; }
+.coupon { position: relative; aspect-ratio: 15 / 8; border-radius: 18px; overflow: hidden; background: #fffaf6; color: #5a1038; border: 3px dashed #ff4fa3; box-shadow: 0 14px 26px -12px rgba(40, 0, 25, .6); }
+.prize { position: absolute; inset: 0; display: grid; place-content: center; gap: .1rem; padding: .6rem; }
+.prize small { font: 600 1.1rem/1 var(--hand); color: #b3123f; }
+.prize b { font: 600 clamp(1.1rem, 2.4vw, 1.5rem)/1.1 var(--display); }
+.prize em { font: 600 1.1rem/1.1 var(--hand); color: #8a1c7c; }
+.coupon canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; transition: opacity .6s; }
+.coupon.done canvas { opacity: 0; pointer-events: none; }
+.coupon .rv { position: absolute; right: 6px; bottom: 6px; z-index: 2; font: 600 .75rem var(--sans); color: #fff; background: rgba(90, 16, 56, .55); border: 0; border-radius: 999px; padding: .15rem .6rem; cursor: pointer; }
+.coupon.done .rv { display: none; }
+@media (max-width: 560px) { .ticketgrid { grid-template-columns: minmax(0, 260px); } }
+
+/* Foto ingrandita */
+.polaroid:has(img) { cursor: zoom-in; }
+#lightbox { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 4vw; cursor: zoom-out; background: rgba(30, 0, 25, .8); backdrop-filter: blur(6px); }
+#lightbox[hidden] { display: none; }
+#lightbox .polaroid { --w: min(88vw, 62vh, 560px); pointer-events: none; animation: zoomIn .35s cubic-bezier(.2, 1.3, .4, 1) both; }
+@keyframes zoomIn { from { transform: rotate(-9deg) scale(.6); opacity: 0; } }
+
+/* Scia del mouse */
+.trail { position: fixed; z-index: 35; pointer-events: none; translate: -50% -50%; animation: trail 1s ease-out forwards; }
+@keyframes trail { from { opacity: .95; } to { opacity: 0; transform: translate(var(--dx), -44px) scale(.4); } }
+
+@media (prefers-reduced-motion: reduce) { #music.on, .candle.puff .smoke, #lightbox .polaroid, .trail { animation: none; } }
+
+/* Caricamento dopo la password */
+#loader { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; background: #5e0f3d; }
+#loader[hidden] { display: none; }
+#loader.out { opacity: 0; pointer-events: none; transition: opacity .7s ease; }
+.ld { display: grid; justify-items: center; gap: 1rem; width: min(22rem, 86vw); text-align: center; }
+.blob { width: 140px; transform-origin: center bottom; animation: hop .9s ease-in-out infinite; }
+@keyframes hop { 0%, 100% { transform: translateY(0) scale(1.14, .86); } 50% { transform: translateY(-22px) scale(.92, 1.1); } }
+#ldMsg { font: 600 1.6rem/1.2 var(--hand); color: var(--gold); min-height: 1.3em; }
+.ldbar { width: 100%; height: 18px; border-radius: 999px; background: rgba(255, 255, 255, .15); border: 2px solid rgba(255, 194, 226, .5); overflow: hidden; }
+.ldbar i { display: block; height: 100%; width: 0; border-radius: 999px; background: linear-gradient(180deg, #ff9ed0, #ff4fa3 60%, #e0267f); box-shadow: inset 0 3px 0 rgba(255, 255, 255, .4); }
+#ldPct { font: 600 1.4rem var(--display); }
+@media (prefers-reduced-motion: reduce) { .blob { animation: none; } }
+
+/* Uscita verso la pagina del regalo */
+body.leaving::after { content: ""; position: fixed; inset: 0; z-index: 70; background: var(--end, #cf2269); opacity: 0; animation: leave 1s .45s ease forwards; }
+@keyframes leave { to { opacity: 1; } }
+
+/* Pagina regalo.html */
+.gift-page::before { content: ""; position: fixed; inset: 0; z-index: 80; background: var(--end, #cf2269); pointer-events: none; animation: unveil .9s ease forwards; }
+@keyframes unveil { to { opacity: 0; visibility: hidden; } }
+.giftwrap { position: relative; min-height: 100svh; display: grid; justify-items: center; align-content: center; gap: 1.4rem; padding: 9vh 6vw 10vh; text-align: center; overflow: hidden; }
+.back { position: absolute; top: 16px; left: 18px; z-index: 2; color: var(--ink); font: 600 1.3rem var(--hand); text-decoration: none; opacity: .85; }
+.back:hover { opacity: 1; }
+.teaser { position: relative; z-index: 1; font: 600 clamp(1.8rem, 5vw, 3rem)/1.1 var(--display); max-width: 20ch; }
+.giftbox { position: relative; z-index: 1; width: min(68vw, 320px); padding: 0; background: none; border: 0; cursor: pointer; }
+.giftbox svg { width: 100%; height: auto; overflow: visible; display: block; }
+.giftbox:not(.open) { animation: wobble 2.6s ease-in-out infinite; }
+@keyframes wobble { 0%, 100% { transform: rotate(0); } 8% { transform: rotate(-3deg); } 16% { transform: rotate(3deg); } 24% { transform: rotate(-2deg); } 32% { transform: rotate(0); } }
+.giftbox .lid { transform-box: fill-box; transform-origin: left bottom; transition: transform .8s cubic-bezier(.3, 1.4, .5, 1), opacity .6s .3s; }
+.giftbox.open .lid { transform: translate(60px, -140px) rotate(26deg); opacity: 0; }
+.giftcard { position: relative; z-index: 1; max-width: 36rem; display: grid; justify-items: center; gap: 1rem; animation: rise .9s cubic-bezier(.2, 1.2, .4, 1) both; }
+.giftcard[hidden] { display: none; }
+@keyframes rise { from { opacity: 0; transform: translateY(40px) scale(.92); } }
+.giftcard h1 { font: 600 clamp(2.2rem, 7vw, 4rem)/1.05 var(--display); }
+.giftcard p { font-size: 1.1rem; }
+.giftcard .polaroid { --w: min(70vw, 260px); }
+.giftcard .sign { color: var(--gold); font: 600 1.8rem var(--hand); }
+.giftcard .btn { font: 600 1.1rem var(--display); color: #fff; background: #ff4fa3; border-radius: 999px; padding: .8rem 2rem; text-decoration: none; box-shadow: 0 6px 0 #b3125f; }
+.giftcard .btn:active { transform: translateY(5px); box-shadow: 0 1px 0 #b3125f; }
+@media (prefers-reduced-motion: reduce) { .giftbox:not(.open), .giftcard { animation: none; } .gift-page::before { animation-duration: .01s; } }
