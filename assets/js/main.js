@@ -431,34 +431,7 @@
     show();
   }
 
-  /* ---------- Squishy da schiacciare ---------- */
-  function initSquishy() {
-    const s = $('.squish'); if (!s) return;
-    const btn = $('.bigsq', s), cnt = $('.sqcount b', s), msg = $('.sqmsg', s), face = $('.sqface', s), wrap = $('.sqwrap', s);
-    const M = (SITE.squishy.milestones || []).slice().sort((a, b) => a[0] - b[0]); let n = 0;
-    const faceFor = k => {
-      const eyes = k >= 100 ? star(88, 112, 12, '#5a1038') + star(152, 112, 12, '#5a1038')
-        : k >= 50 ? '<g stroke="#5a1038" stroke-width="5" fill="none" stroke-linecap="round"><path d="M78 118q10-14 20 0"/><path d="M142 118q10-14 20 0"/></g>'
-        : '<g fill="#5a1038"><circle cx="88" cy="112" r="7"/><circle cx="152" cy="112" r="7"/></g>';
-      const mouth = k >= 10 ? '<path d="M104 130q16 30 32 0z" fill="#5a1038"/><ellipse cx="120" cy="143" rx="8" ry="5" fill="#ff5a8a"/>'
-        : '<path d="M108 134q12 12 24 0" stroke="#5a1038" stroke-width="5" fill="none" stroke-linecap="round"/>';
-      return `${eyes}<ellipse cx="62" cy="134" rx="13" ry="8" fill="#ff5a8a" opacity=".6"/><ellipse cx="178" cy="134" rx="13" ry="8" fill="#ff5a8a" opacity=".6"/>${mouth}`;
-    };
-    face.innerHTML = faceFor(0);
-    const hit = () => {
-      n++; cnt.textContent = n; fx('squish'); face.innerHTML = faceFor(n);
-      const m = M.find(x => x[0] === n);
-      if (m) { msg.textContent = m[1]; fx('win'); if (n >= 100 && !reduce) burst(); }
-      if (!reduce && n % 4 === 0) {
-        const h = document.createElement('span'); h.className = 'sqheart'; h.textContent = pick(Math.random, ['♥', '✦', '♡']);
-        h.style.cssText = `left:${30 + Math.random() * 40}%;color:${pick(Math.random, PAL)}`; wrap.appendChild(h); h.addEventListener('animationend', () => h.remove());
-      }
-    };
-    btn.addEventListener('pointerdown', () => { btn.classList.add('down'); hit(); });
-    ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => btn.addEventListener(ev, () => btn.classList.remove('down')));
-    btn.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); btn.classList.add('down'); hit(); } });
-    btn.addEventListener('keyup', () => btn.classList.remove('down'));
-  }
+
 
   /* ---------- Lettera che si scrive da sola ---------- */
   function initLetter() {
