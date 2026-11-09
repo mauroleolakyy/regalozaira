@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Per Zaira</title>
+  <meta name="theme-color" content="#3d0d4f">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=DM+Sans:wght@400;500&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="locked" style="background-color:#5e0f3d">
+
+  <!-- Schermata password -->
+  <div id="lock" hidden>
+    <svg class="drip" id="lockDrip" viewBox="0 0 1200 170" preserveAspectRatio="none" aria-hidden="true"></svg>
+    <form id="lockForm" autocomplete="off">
+      <h1>Per Zaira</h1>
+      <p id="lockText"></p>
+      <ul id="clues"></ul>
+      <p id="found" aria-live="polite"></p>
+      <input id="pw" type="text" inputmode="numeric" aria-label="Parola magica" placeholder="Parola magica" required>
+      <button type="submit">Apri</button>
+      <p id="err" role="alert"></p>
+    </form>
+  </div>
+
+  <!-- Caricamento dopo la password giusta -->
+  <div id="loader" hidden role="status" aria-live="polite">
+    <div class="ld">
+      <svg class="blob" viewBox="0 0 140 110" aria-hidden="true">
+        <ellipse cx="70" cy="62" rx="58" ry="44" fill="#ffd1e8"/><ellipse cx="42" cy="38" rx="14" ry="7" fill="#fff" opacity=".7"/>
+        <g fill="#5a1038"><circle cx="52" cy="62" r="5"/><circle cx="88" cy="62" r="5"/></g>
+        <ellipse cx="36" cy="72" rx="8" ry="5" fill="#ff5a8a" opacity=".6"/><ellipse cx="104" cy="72" rx="8" ry="5" fill="#ff5a8a" opacity=".6"/>
+        <path d="M62 72q8 9 16 0" stroke="#5a1038" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <p id="ldMsg"></p>
+      <div class="ldbar"><i id="ldFill"></i></div>
+      <b id="ldPct">0%</b>
+    </div>
+  </div>
+
+  <div id="bar" aria-hidden="true"></div>
+  <div id="stage" aria-hidden="true" hidden></div>
+  <div id="age" aria-hidden="true">0</div>
+  <div id="app"></div>
+  <canvas id="confetti" aria-hidden="true"></canvas>
+
+  <!-- Musica: il pulsante compare solo se in data.js c'è una canzone -->
+  <button id="music" type="button" hidden aria-label="Musica">♪</button>
+  <div id="musicPanel" hidden></div>
+
+  <script src="data.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

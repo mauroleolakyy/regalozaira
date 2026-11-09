@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Il regalo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=DM+Sans:wght@400;500&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="gift-page" style="background-color:#cf2269">
+
+  <main class="giftwrap" id="wrap">
+    <a class="back" href="index.html">← torna alla festa</a>
+    <p class="teaser" id="teaser"></p>
+
+    <button id="box" class="giftbox" type="button" aria-label="Apri il regalo">
+      <svg viewBox="0 0 300 300" aria-hidden="true">
+        <ellipse cx="150" cy="288" rx="112" ry="10" fill="rgba(30,0,25,.35)"/>
+        <rect x="50" y="150" width="200" height="132" rx="12" fill="#ff4fa3"/>
+        <rect x="135" y="150" width="30" height="132" fill="#ffe36e"/>
+        <g class="lid">
+          <rect x="40" y="108" width="220" height="48" rx="10" fill="#ff8fc7"/>
+          <rect x="135" y="108" width="30" height="48" fill="#ffe36e"/>
+          <path d="M150 108C120 58 78 68 98 98C108 112 140 110 150 108Z" fill="#ffe36e"/>
+          <path d="M150 108C180 58 222 68 202 98C192 112 160 110 150 108Z" fill="#ffe36e"/>
+          <circle cx="150" cy="106" r="13" fill="#ffc24a"/>
+        </g>
+      </svg>
+    </button>
+
+    <section id="card" class="giftcard" hidden aria-live="polite"></section>
+  </main>
+
+  <canvas id="confetti" aria-hidden="true"></canvas>
+
+  <button id="music" type="button" hidden aria-label="Musica">♪</button>
+  <div id="musicPanel" hidden></div>
+
+  <script src="data.js"></script>
+  <script src="assets/js/regalo.js"></script>
+</body>
+</html>
