@@ -3,6 +3,7 @@
   const $$ = (s, c = document) => [...c.querySelectorAll(s)];
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const PAL = ['#ff8fc7', '#ff4d9d', '#ffd1e8', '#ff5a6e', '#fff4e0', '#ffe36e'];
+  const fx = n => { try { window.SFX && window.SFX[n] && window.SFX[n](); } catch (e) {} };
   const esc = v => String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
   /* ---------- Utilità per le illustrazioni ---------- */
@@ -132,7 +133,7 @@
       const left = i % 2 === 0;
       el.style.cssText = `${left ? 'left' : 'right'}:${1 + r() * 5}%;top:${8 + r() * 78}%;--s:${34 + r() * 30}px;--rot:${Math.round(r() * 50 - 25)}deg;--dl:${(r() * 4).toFixed(1)}s`;
       el.innerHTML = `<svg viewBox="0 0 48 48">${ICONS[Math.floor(r() * ICONS.length)]}</svg>`;
-      el.addEventListener('click', () => { const s = $('svg', el); s.classList.remove('sq'); void s.getBoundingClientRect(); s.classList.add('sq'); });
+      el.addEventListener('click', () => { fx('squish'); const s = $('svg', el); s.classList.remove('sq'); void s.getBoundingClientRect(); s.classList.add('sq'); });
       chapter.appendChild(el);
     }
   };
@@ -164,6 +165,16 @@
     const word = (d.ticker || []).join(' ✦ ') + ' ✦ ';
     const last = d.chapters[d.chapters.length - 1].color;
     const now = d.chapters[d.chapters.length - 1].stage || '';
+    const sec = (cls, x, inner) => `
+        <section class="chapter stack ${cls}" data-color="${esc(last)}" data-age="${+d.age}" data-stage="${esc(now)}">
+          <div class="copy"><h2>${esc(x.title)}</h2><p>${esc(x.intro !== undefined ? x.intro : (x.text || ''))}</p></div>${inner}
+        </section>`;
+    const has = a => a && a.length;
+    const mapSec = d.places && has(d.places.places) ? sec('mapsec', d.places, `<div class="mapwrap"><svg class="map" viewBox="0 0 400 300" role="img" aria-label="Mappa dei nostri posti"></svg><div class="placebox" aria-live="polite"><b></b><span>Tocca un pin ♥</span></div></div>`) : '';
+    const reasonsSec = d.reasons && has(d.reasons.items) ? sec('reasons', d.reasons, `<div class="bubbles">${d.reasons.items.map((t, i) => `<button class="bub" type="button" style="--i:${i}" data-i="${i}" aria-label="Motivo ${i + 1}">${i + 1}</button>`).join('')}</div><div class="reasonbox" aria-live="polite"><p class="rcount"></p><p class="rtext">Tocca una bolla ♥</p></div>`) : '';
+    const quizSec = d.quiz && has(d.quiz.questions) ? sec('quiz', d.quiz, '<div class="quizbox" aria-live="polite"></div>') : '';
+    const squishSec = d.squishy ? sec('squish', d.squishy, `<div class="sqwrap"><button class="bigsq" type="button" aria-label="Schiaccia lo squishy"><svg viewBox="0 0 240 200" aria-hidden="true"><ellipse class="sqbody" cx="120" cy="112" rx="104" ry="82" fill="#ffd1e8"/><ellipse cx="80" cy="64" rx="26" ry="11" fill="#fff" opacity=".7"/><g class="sqface"></g></svg></button><p class="sqcount">squish: <b>0</b></p><p class="sqmsg" aria-live="polite"></p></div>`) : '';
+    const letterSec = d.letter && d.letter.text ? sec('letterSec', d.letter, `<div class="envwrap"><button class="env" type="button" aria-label="Apri la busta"><span class="eback"></span><span class="eflap"></span><span class="eheart">♥</span></button><div class="paper" hidden><p class="sr"></p><p class="typed" aria-hidden="true"></p><button class="skip" type="button">salta</button></div></div>`) : '';
     const rots = [-5, 4, -3, 6, -6, 3, -4, 5];
     const shelf = (d.gallery || []).map((p, i) => pol(p, rots[i % 8], 'big')).join('');
     const album = shelf ? `
@@ -189,7 +200,7 @@
         <span class="hint" aria-hidden="true"></span>
       </header>
       <div class="ticker" aria-hidden="true"><div class="track">${(word.repeat(4) + '').replace(/(.+)/, '<span>$1</span><span>$1</span>')}</div></div>
-      <main>${chap}${album}${couponSec}
+      <main>${chap}${mapSec}${album}${reasonsSec}${quizSec}${squishSec}${couponSec}${letterSec}
         <section class="chapter finale" data-color="${esc(last)}" data-age="${+d.age}" data-stage="${esc(now)}">
           <div class="copy">
             <h2>Buon compleanno, amore mio!</h2>
@@ -259,13 +270,13 @@
     const refresh = () => { count.textContent = lit ? `Candeline accese: ${lit}` : 'Tutte spente: desiderio esaudito ♥'; relight.hidden = lit === N; };
     const snuff = el => {
       if (!el || !el.classList.contains('lit')) return;
-      el.classList.remove('lit'); el.classList.remove('puff'); void el.getBoundingClientRect(); el.classList.add('puff');
+      fx('blow'); el.classList.remove('lit'); el.classList.remove('puff'); void el.getBoundingClientRect(); el.classList.add('puff');
       lit--; refresh();
-      if (!lit && !reduce) setTimeout(burst, 350);
+      if (!lit) { setTimeout(() => fx('tada'), 250); if (!reduce) setTimeout(burst, 350); }
     };
     svg.addEventListener('click', e => snuff(e.target.closest('.candle')));
     svg.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); snuff(e.target.closest('.candle')); } });
-    relight.addEventListener('click', () => { $$('.candle', svg).forEach(c => { c.classList.add('lit'); c.classList.remove('puff'); }); lit = N; refresh(); });
+    relight.addEventListener('click', () => { fx('pop'); $$('.candle', svg).forEach(c => { c.classList.add('lit'); c.classList.remove('puff'); }); lit = N; refresh(); });
 
     // Soffio nel microfono: più forte soffia, più candeline si spengono
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) blow.hidden = false;
@@ -300,9 +311,9 @@
       for (let i = 0; i < 26; i++) { ctx.font = `${14 + r() * 16}px sans-serif`; ctx.fillText(r() < .5 ? '✦' : '♥', r() * W, r() * H + 14); }
       ctx.fillStyle = '#fff'; ctx.font = '600 30px Fredoka, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('gratta qui', W / 2, H / 2 + 10);
       let down = false, last = null, moves = 0, done = false;
-      const reveal = () => { if (done) return; done = true; card.classList.add('done'); if (!reduce) burst(); };
+      const reveal = () => { if (done) return; done = true; fx('win'); card.classList.add('done'); if (!reduce) burst(); };
       const pos = e => { const b = cv.getBoundingClientRect(); return [(e.clientX - b.left) * W / b.width, (e.clientY - b.top) * H / b.height]; };
-      const scratch = (a, b) => { ctx.globalCompositeOperation = 'destination-out'; ctx.lineWidth = 34; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); };
+      const scratch = (a, b) => { ctx.globalCompositeOperation = 'destination-out'; fx('scratch'); ctx.lineWidth = 34; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); };
       const check = () => {
         if (done) return;
         const px = ctx.getImageData(0, 0, W, H).data; let clear = 0, n = 0;
@@ -321,10 +332,10 @@
   function initLightbox() {
     const lb = document.createElement('div'); lb.id = 'lightbox'; lb.hidden = true; lb.setAttribute('role', 'dialog'); lb.setAttribute('aria-label', 'Foto ingrandita');
     document.body.appendChild(lb);
-    const close = () => { lb.hidden = true; lb.innerHTML = ''; };
+    const close = () => { lb.hidden = true; lb.innerHTML = ''; fx('pop'); };
     const open = p => {
       const c = p.cloneNode(true); c.className = 'polaroid'; c.removeAttribute('tabindex'); c.removeAttribute('role'); c.style.setProperty('--r', '-2deg');
-      lb.innerHTML = ''; lb.appendChild(c); lb.hidden = false;
+      lb.innerHTML = ''; lb.appendChild(c); lb.hidden = false; fx('whoosh');
     };
     $$('.polaroid').forEach(p => {
       if (!$('img', p)) return;
@@ -348,6 +359,128 @@
       s.style.cssText = `left:${lx}px;top:${ly}px;--dx:${Math.round(Math.random() * 40 - 20)}px;color:${pick(Math.random, PAL)};font-size:${12 + Math.random() * 14}px`;
       document.body.appendChild(s); s.addEventListener('animationend', () => s.remove());
     });
+  }
+
+  /* ---------- Mappa dei nostri posti ---------- */
+  function initMap() {
+    const svg = $('.map'); if (!svg) return;
+    const P = SITE.places.places, pts = P.map(p => [p.x * 4, p.y * 3]), r = rng(9);
+    let deco = '';
+    for (let i = 0; i < 6; i++) deco += `<ellipse cx="${r() * 360 + 20}" cy="${r() * 260 + 20}" rx="${30 + r() * 40}" ry="${18 + r() * 26}" fill="${i % 2 ? '#ffd1e8' : '#ffe4f1'}"/>`;
+    let dp = `M${pts[0]}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+      dp += `C${p1[0] + (p2[0] - p0[0]) / 6},${p1[1] + (p2[1] - p0[1]) / 6} ${p2[0] - (p3[0] - p1[0]) / 6},${p2[1] - (p3[1] - p1[1]) / 6} ${p2}`;
+    }
+    const pins = pts.map((p, i) => `<g transform="translate(${p[0]} ${p[1]})" class="pin" tabindex="0" role="button" aria-label="Posto ${i + 1}: ${esc(P[i].name)}" data-i="${i}">
+        <g class="pi" style="--d:${(i * .25).toFixed(2)}s"><path d="M0 0C-22-22-22-44 0-44C22-44 22-22 0 0Z" fill="#ff4fa3"/><circle cy="-29" r="10" fill="#fff"/>
+        <text y="-25" text-anchor="middle" font-size="12" font-weight="700" fill="#b3125f" style="font-family:Fredoka,sans-serif">${i + 1}</text>
+        <text y="15" text-anchor="middle" font-size="13" fill="#5a1038" style="font-family:Caveat,cursive;font-weight:600">${esc(P[i].name)}</text></g></g>`).join('');
+    svg.innerHTML = `<rect width="400" height="300" rx="22" fill="#fff4e0"/>${deco}<path d="${dp}" fill="none" stroke="#ffc2e2" stroke-width="12" stroke-linecap="round"/><path d="${dp}" fill="none" stroke="#ff4fa3" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 9"/>${pins}`;
+    const box = $('.placebox'), show = pin => {
+      const p = P[+pin.dataset.i]; fx('pop');
+      $$('.pin', svg).forEach(x => x.classList.toggle('on', x === pin));
+      $('b', box).textContent = p.name; $('span', box).textContent = p.note || '';
+    };
+    $$('.pin', svg).forEach(pin => {
+      pin.addEventListener('click', () => show(pin));
+      pin.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(pin); } });
+    });
+  }
+
+  /* ---------- 22 motivi ---------- */
+  function initReasons() {
+    const s = $('.reasons'); if (!s) return;
+    const items = SITE.reasons.items, txt = $('.rtext', s), cnt = $('.rcount', s); let opened = 0;
+    const upd = () => { cnt.textContent = `Motivi scoperti: ${opened} su ${items.length}`; }; upd();
+    $$('.bub', s).forEach(b => b.addEventListener('click', () => {
+      fx('pop');
+      txt.textContent = items[+b.dataset.i]; txt.classList.remove('swap'); void txt.offsetWidth; txt.classList.add('swap');
+      if (b.classList.contains('seen')) return;
+      b.classList.add('seen'); b.textContent = '♥'; opened++; upd();
+      if (opened === items.length) { setTimeout(() => { fx('tada'); txt.textContent = SITE.reasons.done || 'E ce ne sarebbero altri mille ♥'; }, 900); if (!reduce) setTimeout(burst, 900); }
+    }));
+  }
+
+  /* ---------- Quiz su di noi ---------- */
+  function initQuiz() {
+    const box = $('.quizbox'); if (!box) return;
+    const Q = SITE.quiz.questions; let i = 0, score = 0;
+    const show = () => {
+      if (i >= Q.length) {
+        const res = SITE.quiz.results || [], idx = Math.min(res.length - 1, Math.round(score / Q.length * (res.length - 1)));
+        box.innerHTML = `<p class="qn">Risultato</p><h3>${score} su ${Q.length}</h3><p class="qfb">${esc(res[idx] || '')}</p><button type="button" class="qnext">Rifai il quiz</button>`;
+        if (score === Q.length) { fx('tada'); if (!reduce) burst(); } else fx('win');
+        $('.qnext', box).addEventListener('click', () => { i = 0; score = 0; show(); });
+        return;
+      }
+      const q = Q[i];
+      box.innerHTML = `<p class="qn">Domanda ${i + 1} di ${Q.length}</p><h3>${esc(q.q)}</h3>
+        <div class="opts">${q.options.map((o, k) => `<button type="button" class="opt" data-k="${k}">${esc(o)}</button>`).join('')}</div><p class="qfb"></p>`;
+      let answered = false;
+      $$('.opt', box).forEach(btn => btn.addEventListener('click', () => {
+        if (answered) return; answered = true;
+        const k = +btn.dataset.k, good = k === q.answer;
+        btn.classList.add(good ? 'good' : 'bad'); $$('.opt', box)[q.answer].classList.add('good');
+        if (good) { score++; fx('ding'); } else fx('error');
+        $('.qfb', box).textContent = (good ? q.ok : q.ko) || '';
+        const n = document.createElement('button'); n.type = 'button'; n.className = 'qnext'; n.textContent = i === Q.length - 1 ? 'Vedi il risultato' : 'Avanti';
+        n.addEventListener('click', () => { i++; show(); }); box.appendChild(n); n.focus({ preventScroll: true });
+      }));
+    };
+    show();
+  }
+
+  /* ---------- Squishy da schiacciare ---------- */
+  function initSquishy() {
+    const s = $('.squish'); if (!s) return;
+    const btn = $('.bigsq', s), cnt = $('.sqcount b', s), msg = $('.sqmsg', s), face = $('.sqface', s), wrap = $('.sqwrap', s);
+    const M = (SITE.squishy.milestones || []).slice().sort((a, b) => a[0] - b[0]); let n = 0;
+    const faceFor = k => {
+      const eyes = k >= 100 ? star(88, 112, 12, '#5a1038') + star(152, 112, 12, '#5a1038')
+        : k >= 50 ? '<g stroke="#5a1038" stroke-width="5" fill="none" stroke-linecap="round"><path d="M78 118q10-14 20 0"/><path d="M142 118q10-14 20 0"/></g>'
+        : '<g fill="#5a1038"><circle cx="88" cy="112" r="7"/><circle cx="152" cy="112" r="7"/></g>';
+      const mouth = k >= 10 ? '<path d="M104 130q16 30 32 0z" fill="#5a1038"/><ellipse cx="120" cy="143" rx="8" ry="5" fill="#ff5a8a"/>'
+        : '<path d="M108 134q12 12 24 0" stroke="#5a1038" stroke-width="5" fill="none" stroke-linecap="round"/>';
+      return `${eyes}<ellipse cx="62" cy="134" rx="13" ry="8" fill="#ff5a8a" opacity=".6"/><ellipse cx="178" cy="134" rx="13" ry="8" fill="#ff5a8a" opacity=".6"/>${mouth}`;
+    };
+    face.innerHTML = faceFor(0);
+    const hit = () => {
+      n++; cnt.textContent = n; fx('squish'); face.innerHTML = faceFor(n);
+      const m = M.find(x => x[0] === n);
+      if (m) { msg.textContent = m[1]; fx('win'); if (n >= 100 && !reduce) burst(); }
+      if (!reduce && n % 4 === 0) {
+        const h = document.createElement('span'); h.className = 'sqheart'; h.textContent = pick(Math.random, ['♥', '✦', '♡']);
+        h.style.cssText = `left:${30 + Math.random() * 40}%;color:${pick(Math.random, PAL)}`; wrap.appendChild(h); h.addEventListener('animationend', () => h.remove());
+      }
+    };
+    btn.addEventListener('pointerdown', () => { btn.classList.add('down'); hit(); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => btn.addEventListener(ev, () => btn.classList.remove('down')));
+    btn.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); btn.classList.add('down'); hit(); } });
+    btn.addEventListener('keyup', () => btn.classList.remove('down'));
+  }
+
+  /* ---------- Lettera che si scrive da sola ---------- */
+  function initLetter() {
+    const s = $('.letterSec'); if (!s) return;
+    const env = $('.env', s), paper = $('.paper', s), typed = $('.typed', s), skip = $('.skip', s);
+    const full = String(SITE.letter.text).trim() + (SITE.finalSign ? `\n\n${SITE.finalSign}` : '');
+    $('.sr', s).textContent = full; let timer = 0, idx = 0;
+    const finish = () => { clearInterval(timer); typed.textContent = full; paper.classList.add('done'); };
+    env.addEventListener('click', () => {
+      if (env.classList.contains('open')) return;
+      env.classList.add('open'); fx('whoosh');
+      setTimeout(() => {
+        paper.hidden = false; paper.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+        if (reduce) { finish(); return; }
+        timer = setInterval(() => {
+          idx++; typed.textContent = full.slice(0, idx);
+          if (idx % 28 === 0) fx('sparkle');
+          if (idx >= full.length) finish();
+        }, 24);
+      }, reduce ? 0 : 750);
+    });
+    skip.addEventListener('click', finish);
   }
 
   function init() {
@@ -398,13 +531,13 @@
     document.documentElement.style.setProperty('--end', $$('[data-color]').pop().dataset.color);
     let leaving = false;
     $('#party').addEventListener('click', () => {
-      if (leaving) return; leaving = true;
+      if (leaving) return; leaving = true; fx('tada');
       if (!reduce) burst();
       document.body.classList.add('leaving');           // dissolvenza rosa
       try { if (musicAudio) sessionStorage.setItem('zaira-music-t', String(musicAudio.currentTime)); } catch (e) {}
       setTimeout(() => { location.href = 'regalo.html'; }, reduce ? 0 : 1500);
     });
-    initCounter(); initCake(); initCoupons(); initLightbox(); initTrail();
+    initCounter(); initCake(); initCoupons(); initMap(); initReasons(); initQuiz(); initSquishy(); initLetter(); initLightbox(); initTrail();
   }
 
   /* ---------- Coriandoli glitterati ---------- */
@@ -449,7 +582,7 @@
       if (b.classList.contains('open')) return;
       b.classList.add('open');
       b.innerHTML = esc(t).replace(/\{(.+?)\}/g, '<mark>$1</mark>');
-      found++; count();
+      found++; count(); fx(found === total ? 'ding' : 'flip');
     });
     li.appendChild(b); $('#clues').appendChild(li);
   });
@@ -490,9 +623,9 @@
       const p = Math.min(1, (t - t0) / ms), e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2, v = Math.round(e * 100);
       fill.style.width = v + '%'; pct.textContent = v + '%';
       const m = msgs[Math.min(msgs.length - 1, Math.floor(p * msgs.length))];
-      if (msg.textContent !== m) msg.textContent = m;
+      if (msg.textContent !== m) { msg.textContent = m; fx('sparkle'); }
       if (p < 1) { requestAnimationFrame(tick); return; }
-      done(); loader.classList.add('out'); setTimeout(() => { loader.hidden = true; }, 800);
+      done(); fx('tada'); loader.classList.add('out'); setTimeout(() => { loader.hidden = true; }, 800);
     };
     requestAnimationFrame(tick);
   };
@@ -507,7 +640,7 @@
       $$('input, button', form).forEach(el => { el.disabled = true; });
       runLoader(start);
     } else {
-      err.textContent = 'Password sbagliata. Riprova.';
+      err.textContent = 'Password sbagliata. Riprova.'; fx('error');
       $('#pw').select();
     }
   });
