@@ -283,3 +283,101 @@ body.leaving::after { content: ""; position: fixed; inset: 0; z-index: 70; backg
 .giftcard .btn { font: 600 1.1rem var(--display); color: #fff; background: #ff4fa3; border-radius: 999px; padding: .8rem 2rem; text-decoration: none; box-shadow: 0 6px 0 #b3125f; }
 .giftcard .btn:active { transform: translateY(5px); box-shadow: 0 1px 0 #b3125f; }
 @media (prefers-reduced-motion: reduce) { .giftbox:not(.open), .giftcard { animation: none; } .gift-page::before { animation-duration: .01s; } }
+
+/* Pulsante suoni */
+#sfx {
+  position: fixed; right: 62px; bottom: 12px; z-index: 45; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; font-size: 1.05rem; line-height: 1;
+  color: #fff; background: rgba(255, 79, 163, .55); border: 1.5px solid rgba(255, 255, 255, .5); backdrop-filter: blur(6px); opacity: .85;
+}
+#sfx:hover { opacity: 1; }
+body.locked #sfx { right: 12px; }
+
+/* Mobile: musica in basso accanto ai pulsanti e più spazio sotto "Auguri Amore!" */
+@media (max-width: 760px) {
+  #musicPanel { right: 108px; bottom: 12px; width: calc(100vw - 120px); }
+  .finale { padding-bottom: calc(190px + env(safe-area-inset-bottom, 0px)); }
+  #party { margin-top: 3rem; }
+}
+
+/* ===== Sezioni extra: stack comune ===== */
+.stack { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 2.5rem; }
+.stack > :not(.copy) { position: relative; z-index: 1; }
+
+/* Mappa */
+.mapwrap { width: min(100%, 560px); display: grid; gap: 1rem; }
+.map { width: 100%; height: auto; border-radius: 22px; box-shadow: 0 20px 36px -16px rgba(40, 0, 25, .7); overflow: visible; }
+.pin { cursor: pointer; outline: none; }
+.pin .pi { transform-box: fill-box; transform-origin: 50% 100%; }
+.chapter:not(.in) .pin .pi { opacity: 0; }
+.chapter.in .pin .pi { animation: pinpop .6s cubic-bezier(.2, 1.5, .4, 1) var(--d) both; }
+@keyframes pinpop { from { transform: scale(0); } }
+.chapter.in .pin.on .pi, .pin.on .pi { transform: scale(1.25); transition: transform .25s cubic-bezier(.2, 1.6, .4, 1); animation: none; }
+.pin:focus-visible path:first-child { stroke: var(--hl); stroke-width: 3; }
+.placebox { background: rgba(255, 255, 255, .14); border: 2px solid rgba(255, 194, 226, .5); border-radius: 22px; padding: .8rem 1.2rem; display: grid; gap: .1rem; min-height: 4.5rem; align-content: center; }
+.placebox b { font: 600 1.5rem var(--display); }
+.placebox span { opacity: .9; }
+
+/* 22 motivi */
+.bubbles { display: grid; grid-template-columns: repeat(auto-fit, minmax(58px, 1fr)); gap: .8rem; width: min(100%, 560px); }
+.bub {
+  aspect-ratio: 1; border: 0; border-radius: 50%; cursor: pointer; font: 600 1.3rem var(--display); color: #fff;
+  background: radial-gradient(circle at 30% 28%, #ffd1e8, #ff4fa3 55%, #c21f86); box-shadow: 0 6px 12px -4px rgba(40, 0, 25, .5), inset 0 -4px 8px rgba(120, 0, 70, .25);
+  animation: bubbob 4s ease-in-out infinite; animation-delay: calc(var(--i) * -.37s); transition: transform .15s;
+}
+.bub:active { transform: scale(1.15, .85); }
+@keyframes bubbob { 50% { translate: 0 -6px; } }
+.bub.seen { background: rgba(255, 255, 255, .14); color: var(--gold); box-shadow: none; animation: none; }
+.reasonbox { width: min(100%, 560px); background: rgba(255, 255, 255, .14); border: 2px solid rgba(255, 194, 226, .5); border-radius: 26px; padding: 1rem 1.4rem 1.2rem; }
+.rcount { font: 600 1.2rem var(--hand); color: var(--gold); }
+.rtext { font: 600 clamp(1.6rem, 4.2vw, 2.1rem)/1.2 var(--hand); min-height: 3.6em; display: grid; align-items: center; }
+.rtext.swap { animation: swap .45s cubic-bezier(.2, 1.4, .4, 1); }
+@keyframes swap { from { opacity: 0; transform: scale(.9) translateY(8px); } }
+
+/* Quiz */
+.quizbox { width: min(100%, 560px); background: rgba(255, 255, 255, .14); border: 2px solid rgba(255, 194, 226, .5); border-radius: 26px; padding: 1.4rem 1.4rem 1.6rem; display: grid; gap: .9rem; text-align: center; }
+.qn { font: 600 1.3rem var(--hand); color: var(--gold); }
+.quizbox h3 { font: 600 clamp(1.4rem, 4vw, 1.9rem)/1.15 var(--display); }
+.opts { display: grid; gap: .6rem; }
+.opt { font: 500 1.05rem var(--sans); color: var(--ink); background: rgba(255, 255, 255, .1); border: 2px solid rgba(255, 194, 226, .55); border-radius: 999px; padding: .75rem 1.2rem; cursor: pointer; transition: transform .15s, background .2s; }
+.opt:hover { background: rgba(255, 255, 255, .2); }
+.opt:active { transform: scale(1.03, .96); }
+.opt.good { background: #ffe36e; color: #3a0b2a; border-color: #ffe36e; }
+.opt.bad { background: rgba(60, 0, 25, .55); border-color: #ff8a8a; text-decoration: line-through; animation: shake .4s; }
+@keyframes shake { 25% { translate: -6px 0; } 75% { translate: 6px 0; } }
+.qfb { font: 600 1.4rem/1.2 var(--hand); color: var(--gold); min-height: 1.2em; }
+.qnext { justify-self: center; font: 600 1rem var(--display); color: #fff; background: #ff4fa3; border: 0; border-radius: 999px; padding: .7rem 1.8rem; cursor: pointer; box-shadow: 0 5px 0 #b3125f; }
+.qnext:active { transform: translateY(4px); box-shadow: 0 1px 0 #b3125f; }
+
+/* Squishy gigante */
+.sqwrap { position: relative; display: grid; justify-items: center; gap: .5rem; width: min(100%, 360px); }
+.bigsq { width: min(72vw, 290px); padding: 0; background: none; border: 0; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; transition: transform .5s cubic-bezier(.2, 2.4, .4, 1); transform-origin: center bottom; }
+.bigsq.down { transform: scale(1.22, .78); transition-duration: .08s; }
+.bigsq svg { width: 100%; height: auto; display: block; overflow: visible; filter: drop-shadow(0 16px 14px rgba(40, 0, 25, .35)); }
+.sqcount { font: 600 1.6rem var(--hand); color: var(--gold); }
+.sqcount b { font: 600 2rem var(--display); color: var(--hl); }
+.sqmsg { font: 600 1.5rem var(--hand); min-height: 1.3em; }
+.sqheart { position: absolute; bottom: 55%; font-size: 1.6rem; pointer-events: none; animation: floatup 1.1s ease-out forwards; }
+@keyframes floatup { to { transform: translateY(-110px) rotate(14deg) scale(1.3); opacity: 0; } }
+
+/* Lettera */
+.envwrap { display: grid; justify-items: center; gap: 2rem; width: min(100%, 560px); }
+.env { position: relative; width: min(78vw, 300px); aspect-ratio: 3 / 2; padding: 0; border: 0; cursor: pointer; background: none; perspective: 700px; filter: drop-shadow(0 16px 16px rgba(40, 0, 25, .4)); }
+.eback { position: absolute; inset: 0; border-radius: 10px; background: linear-gradient(135deg, #ff9ed0, #ff5fae); }
+.eflap { position: absolute; left: 0; right: 0; top: 0; height: 62%; background: #ff3d98; clip-path: polygon(0 0, 100% 0, 50% 100%); transform-origin: top; transition: transform .7s cubic-bezier(.3, 1.2, .5, 1), background .3s; z-index: 2; border-radius: 10px 10px 0 0; }
+.env.open .eflap { transform: rotateX(180deg); background: #e0267f; z-index: 0; }
+.eheart { position: absolute; left: 50%; top: 42%; translate: -50% -50%; z-index: 3; font-size: 2rem; color: #ffe36e; transition: opacity .3s; }
+.env.open .eheart { opacity: 0; }
+.env:not(.open) { animation: wobble 2.6s ease-in-out infinite; }
+.paper {
+  position: relative; width: 100%; padding: 1.8rem 1.6rem 1.4rem; text-align: left; color: #5a1038; background: #fffaf6; border-radius: 6px; rotate: -1deg;
+  background-image: repeating-linear-gradient(transparent 0 1.95rem, rgba(255, 79, 163, .2) 1.95rem 2rem); box-shadow: 0 22px 34px -14px rgba(40, 0, 25, .7); animation: rise .7s cubic-bezier(.2, 1.2, .4, 1) both;
+}
+.paper[hidden] { display: none; }
+.typed { font: 600 clamp(1.35rem, 3.6vw, 1.7rem)/2rem var(--hand); white-space: pre-wrap; min-height: 6rem; }
+.paper:not(.done) .typed::after { content: "|"; animation: caret .8s steps(1) infinite; }
+@keyframes caret { 50% { opacity: 0; } }
+.skip { position: absolute; right: 10px; top: 8px; font: 600 .8rem var(--sans); color: #8a1c7c; background: none; border: 0; cursor: pointer; text-decoration: underline; }
+.paper.done .skip { display: none; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: pre-wrap; }
+
+@media (prefers-reduced-motion: reduce) { .bub, .env:not(.open), .paper, .rtext.swap, .chapter.in .pin .pi, .sqheart, .opt.bad { animation: none; } .paper:not(.done) .typed::after { animation: none; } }
