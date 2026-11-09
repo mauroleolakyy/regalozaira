@@ -68,6 +68,7 @@
   box.addEventListener('click', () => {
     if (box.classList.contains('open')) return;
     box.classList.add('open'); box.setAttribute('aria-label', 'Regalo aperto');
+    if (window.SFX) { SFX.whoosh(); setTimeout(() => SFX.tada(), 180); }
     if (audio && audio.paused && !userPaused) audio.play().catch(() => {});
     if (!reduce) burst();
     setTimeout(() => {
