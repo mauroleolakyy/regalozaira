@@ -147,6 +147,14 @@ window.SITE = {
     caption: 'la vista',
     // music: { spotify: 'https://open.spotify.com/…', file: '' },  // facoltativo: una canzone diversa solo per questa pagina (altrimenti usa la stessa della festa)
     link: { label: '', url: '' }, // un pulsante opzionale, es. { label: 'Guarda il video', url: 'https://…' }
+    itineraryTitle: 'Il nostro programma segreto',
+    itineraryText: 'Una giornata speciale, da vivere insieme, senza fretta.',
+    itinerary: [
+      { title: 'Un giro sul lungomare', text: 'Nel pomeriggio ci godiamo una passeggiata insieme sul lungomare.' },
+      { title: 'Check-in e preparativi', text: 'Poi facciamo check-in in hotel e ci prepariamo con calma per la serata.' },
+      { title: 'Cena insieme', text: 'Andiamo a cena da Nero&Oro e brindiamo al tuo compleanno.' },
+      { title: 'La nostra notte', text: 'Dopo cena torniamo in hotel, per goderci la notte insieme.' },
+    ],
   },
 
   // ===== MAPPA DEI NOSTRI POSTI: x e y vanno da 0 a 100 (0,0 = in alto a sinistra). I pin sono uniti nell'ordine della lista. =====
