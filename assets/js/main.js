@@ -212,7 +212,7 @@
               <div class="cakeBtns"><button id="blow" type="button" hidden>Soffia nel microfono</button><button id="relight" type="button" hidden>Riaccendi</button></div>
             </div>
             <p class="sign">${esc(d.finalSign)}</p>
-            <button id="party" type="button">Auguri Amore!</button>
+            <button id="party" type="button" hidden>Auguri Amore!</button>
           </div>
         </section>
       </main>`;
@@ -266,8 +266,13 @@
       <rect x="35" y="172" width="330" height="24" fill="#fff4e0"/>${cs}
       <ellipse cx="200" cy="172" rx="165" ry="34" fill="#fff4e0"/><ellipse cx="200" cy="172" rx="150" ry="28" fill="#ffd1e8"/>${back}${front}`;
     let lit = N;
-    const count = $('#cakeCount'), relight = $('#relight'), blow = $('#blow');
-    const refresh = () => { count.textContent = lit ? `Candeline accese: ${lit}` : 'Tutte spente: desiderio esaudito ♥'; relight.hidden = lit === N; };
+    const count = $('#cakeCount'), relight = $('#relight'), blow = $('#blow'), party = $('#party');
+    const refresh = () => {
+      count.textContent = lit ? `Candeline accese: ${lit}` : 'Tutte spente: desiderio esaudito ♥';
+      relight.hidden = lit === N;
+      party.hidden = lit > 0;
+      party.classList.toggle('ready', lit === 0);
+    };
     const snuff = el => {
       if (!el || !el.classList.contains('lit')) return;
       fx('blow'); el.classList.remove('lit'); el.classList.remove('puff'); void el.getBoundingClientRect(); el.classList.add('puff');
@@ -397,8 +402,22 @@
       fx('pop');
       txt.textContent = items[+b.dataset.i]; txt.classList.remove('swap'); void txt.offsetWidth; txt.classList.add('swap');
       if (b.classList.contains('seen')) return;
-      b.classList.add('seen'); b.textContent = '♥'; opened++; upd();
-      if (opened === items.length) { setTimeout(() => { fx('tada'); txt.textContent = SITE.reasons.done || 'E ce ne sarebbero altri mille ♥'; }, 900); if (!reduce) setTimeout(burst, 900); }
+      b.classList.add('seen'); b.textContent = '♥'; b.setAttribute('aria-label', `Motivo ${+b.dataset.i + 1}: ${items[+b.dataset.i]}`);
+      if (!reduce) {
+        b.classList.add('pop'); b.addEventListener('animationend', () => b.classList.remove('pop'), { once: true });
+        const bounds = b.getBoundingClientRect();
+        burst(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2, 22);
+      }
+      opened++; upd();
+      if (opened === items.length) {
+        setTimeout(() => {
+          fx('tada'); txt.textContent = SITE.reasons.done || 'E ce ne sarebbero altri mille ♥';
+          if (!reduce) {
+            const bounds = s.getBoundingClientRect();
+            burst(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2, 260);
+          }
+        }, 900);
+      }
     }));
   }
 
@@ -542,25 +561,47 @@
 
   /* ---------- Coriandoli glitterati ---------- */
   const cv = $('#confetti'), ctx = cv.getContext('2d');
-  let bits = [], raf = 0;
-  const fit = () => { cv.width = innerWidth; cv.height = innerHeight; };
+  let bits = [], raf = 0, pixelRatio = 1;
+  const fit = () => {
+    pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width = Math.round(innerWidth * pixelRatio); cv.height = Math.round(innerHeight * pixelRatio);
+    ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+  };
   fit(); addEventListener('resize', fit);
-  const burst = () => {
-    for (let i = 0; i < 180; i++) bits.push({
-      x: innerWidth / 2, y: innerHeight * .7, vx: (Math.random() - .5) * 16, vy: -Math.random() * 18 - 4,
-      s: Math.random() * 8 + 4, r: Math.random() * 6, vr: Math.random() * .3 - .15, c: PAL[i % PAL.length],
+  const burst = (x = innerWidth / 2, y = innerHeight * .7, amount = 180) => {
+    if (reduce) return;
+    for (let i = 0; i < amount; i++) {
+      const angle = Math.random() * Math.PI * 2, speed = 3 + Math.random() * (amount > 100 ? 12 : 7);
+      bits.push({
+      x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed - (amount > 100 ? 3 : 1),
+      size: Math.random() * (amount > 100 ? 10 : 7) + 4, r: Math.random() * 6, vr: Math.random() * .3 - .15,
+      c: pick(Math.random, PAL), shape: Math.random() < .28 ? 'heart' : (Math.random() < .5 ? 'circle' : 'confetti'),
+      age: 0, life: 55 + Math.random() * 35,
     });
+    }
     if (!raf) loop();
   };
   const loop = () => {
-    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
     bits.forEach(b => {
-      b.vy += .35; b.x += b.vx; b.y += b.vy; b.r += b.vr;
-      ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.r); ctx.fillStyle = b.c; ctx.fillRect(-b.s / 2, -b.s / 4, b.s, b.s / 2); ctx.restore();
+      b.age++; b.vy += .2; b.vx *= .99; b.vy *= .99; b.x += b.vx; b.y += b.vy; b.r += b.vr;
+      ctx.save(); ctx.globalAlpha = Math.min(1, (b.life - b.age) / 18); ctx.translate(b.x, b.y); ctx.rotate(b.r); ctx.fillStyle = b.c;
+      if (b.shape === 'heart') {
+        const s = b.size;
+        ctx.beginPath(); ctx.moveTo(0, s * .38);
+        ctx.bezierCurveTo(-s * .9, -s * .15, -s * .42, -s * .72, 0, -s * .28);
+        ctx.bezierCurveTo(s * .42, -s * .72, s * .9, -s * .15, 0, s * .38);
+        ctx.fill();
+      } else if (b.shape === 'circle') {
+        ctx.beginPath(); ctx.arc(0, 0, b.size * .35, 0, Math.PI * 2); ctx.fill();
+      } else {
+        ctx.fillRect(-b.size / 2, -b.size / 4, b.size, b.size / 2);
+      }
+      ctx.restore();
     });
-    bits = bits.filter(b => b.y < innerHeight + 30);
+    bits = bits.filter(b => b.age < b.life && b.y < innerHeight + 30 && b.x > -30 && b.x < innerWidth + 30);
     raf = bits.length ? requestAnimationFrame(loop) : 0;
-    if (!raf) ctx.clearRect(0, 0, cv.width, cv.height);
+    if (!raf) ctx.clearRect(0, 0, innerWidth, innerHeight);
   };
 
   /* ---------- Giochino iniziale + password (controllo nel browser) ---------- */
@@ -605,7 +646,11 @@
       btn.hidden = false; btn.textContent = '♪'; btn.setAttribute('aria-label', 'Mostra o nascondi il lettore musicale');
       panel.innerHTML = `<iframe title="Spotify: ${esc(m.caption || 'la nostra canzone')}" src="https://open.spotify.com/embed/${sp.type}/${sp.id}?utm_source=generator&theme=0" width="100%" height="80" frameborder="0"
           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
-      panel.hidden = false; btn.onclick = () => { panel.hidden = !panel.hidden; };
+      panel.hidden = true; btn.setAttribute('aria-expanded', 'false');
+      btn.onclick = () => {
+        panel.hidden = !panel.hidden;
+        btn.setAttribute('aria-expanded', String(!panel.hidden));
+      };
     }
   };
   const start = () => { build(SITE); lock.hidden = true; document.body.classList.remove('locked'); scrollTo(0, 0); init(); };

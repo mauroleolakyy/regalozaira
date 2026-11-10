@@ -16,7 +16,13 @@
   // Contenuto del regalo (da data.js > gift)
   const link = g.link && g.link.url ? `<a class="btn" href="${esc(g.link.url)}" target="_blank" rel="noopener">${esc(g.link.label || 'Apri')}</a>` : '';
   const photo = g.image ? `<div class="polaroid" style="--r:-3deg"><div class="ph"><img src="${esc(url(g.image))}" alt="${esc(g.caption || '')}"></div><p class="cap">${esc(g.caption || '')}</p></div>` : '';
-  $('#card').innerHTML = `${photo}<h1>${esc(g.title || 'Il tuo regalo')}</h1><p>${esc(g.text || '')}</p>${link}<p class="sign">${esc(S.finalSign || '')}</p>`;
+  const itinerary = Array.isArray(g.itinerary) && g.itinerary.length ? `
+    <section class="itinerary" aria-labelledby="itineraryTitle">
+      <h2 id="itineraryTitle">${esc(g.itineraryTitle || 'Il nostro programma')}</h2>
+      <p class="itinerary-intro">${esc(g.itineraryText || '')}</p>
+      <ol>${g.itinerary.map(item => `<li><div><h3>${esc(item.title || '')}</h3><p>${esc(item.text || '')}</p></div></li>`).join('')}</ol>
+    </section>` : '';
+  $('#card').innerHTML = `${photo}<h1>${esc(g.title || 'Il tuo regalo')}</h1><p>${esc(g.text || '')}</p>${link}<p class="sign">${esc(S.finalSign || '')}</p>${itinerary}`;
   const img = $('#card img');
   if (img) img.addEventListener('error', () => { const ph = img.parentNode; ph.classList.add('empty'); ph.innerHTML = '<span>foto non trovata</span>'; });
 
@@ -60,7 +66,11 @@
     mb.hidden = false; mb.setAttribute('aria-label', 'Mostra o nascondi il lettore musicale');
     mp.innerHTML = `<iframe title="Spotify" src="https://open.spotify.com/embed/${sp[0]}/${sp[1]}?utm_source=generator&theme=0" width="100%" height="80" frameborder="0"
       allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
-    mp.hidden = false; mb.onclick = () => { mp.hidden = !mp.hidden; };
+    mp.hidden = true; mb.setAttribute('aria-expanded', 'false');
+    mb.onclick = () => {
+      mp.hidden = !mp.hidden;
+      mb.setAttribute('aria-expanded', String(!mp.hidden));
+    };
   }
 
   // Apertura del pacco
@@ -73,7 +83,7 @@
     if (!reduce) burst();
     setTimeout(() => {
       card.hidden = false; teaser.hidden = true;
-      card.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+      card.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
     }, reduce ? 0 : 700);
   });
 })();
