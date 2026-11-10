@@ -142,9 +142,9 @@ window.SITE = {
   gift: {
     teaser: 'Un ultimo regalo, il più grande. Tocca il pacco per aprirlo.',
     title: 'Il tuo regalo più grande',
-    text: '.',
-    image: '',                 // foto del regalo o vostra, es. 'assets/img/regalo.jpg' (vuoto = nessuna foto)
-    caption: 'per te',
+    text: 'Una cena da Nero&Oro Restaurant e un soggiorno in una suite di Gramsci Suites sul lungomare di chiaia',
+    image: 'assets/img/images.jfif',                 // foto del regalo o vostra, es. 'assets/img/regalo.jpg' (vuoto = nessuna foto)
+    caption: 'la vista',
     // music: { spotify: 'https://open.spotify.com/…', file: '' },  // facoltativo: una canzone diversa solo per questa pagina (altrimenti usa la stessa della festa)
     link: { label: '', url: '' }, // un pulsante opzionale, es. { label: 'Guarda il video', url: 'https://…' }
   },
