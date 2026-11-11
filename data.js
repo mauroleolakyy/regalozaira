@@ -10,9 +10,24 @@ window.SITE = {
   birthYear: 2004,
   age: 22,
 
-  // PASSWORD: giorno + mese + anno di nascita attaccati (18/11/2004 -> 18112004).
+  // PASSWORD: mese + eta + anno + giorno (11 + 22 + 2004 + 18 -> 1122200418).
   // Slash, spazi e trattini vengono ignorati.
-  password: '18112004',
+  password: '1122200418',
+
+  // COUNTDOWN: enabled true lo mostra fino alla data indicata; metti false per disattivarlo.
+  // La data usa il fuso italiano: a novembre l'offset è +01:00.
+  countdown: {
+    enabled: true,
+    unlockAt: '2026-11-17T10:00:00+01:00',
+    dailyReveals: [
+      'Questa pagina è stata preparata con piccoli dettagli scelti pensando a te.',
+      'Ci sono ricordi e fotografie che raccontano un pezzetto della tua storia.',
+      'Qualche dettaglio del sito si scopre soltanto toccando lo schermo.',
+      'Colori, animazioni e parole sono stati scelti per farti sorridere.',
+      'Anche la musica fa parte dell’atmosfera di questo piccolo mondo.',
+      'Ormai hai scoperto quasi tutto quello che si nasconde in queste pagine.',
+    ],
+  },
 
   // INSIEME DA: data del fidanzamento (anno-mese-giorno). Alimenta il contatore del capitolo con "counter: true".
   since: '2024-03-23',
@@ -24,15 +39,15 @@ window.SITE = {
   //             e c'è un pulsante per metterla in pausa. È la scelta più affidabile per un'esperienza completa.
   music: { spotify: 'https://open.spotify.com/intl-it/track/2YuelA1W0c01zSMTa4mrko?si=cefa2426ff0b4974', file: '', caption: 'La nostra canzone' },
 
-  // GIOCHINO INIZIALE: ogni indizio è una carta da girare. Il testo tra {graffe} viene evidenziato.
-  // Il "22" è volutamente un'esca: gli anni non fanno parte della password.
-  lockText: 'Per aprire il regalo trova la parola magica. Gira le carte, cerca i numeri evidenziati e ricomponi il giorno in cui sei nata: giorno, mese, anno.',
+  // GIOCHINO INIZIALE: gira le carte, risolvi gli indovinelli e riordina i frammenti del codice.
+  lockText: 'Gira tutte le carte e risolvi gli indovinelli. Poi ricomponi il codice nell’ordine: mese, età, anno, giorno.',
   clues: [
-    'Il {18} è il giorno del mese in cui sei nata, 4 numeri in meno della tua erà.',
-    "Quest'anno spegni {22} candeline, ma non li dimostri affatto.",
-    "Novembre è l'{11}º mese dell'anno: freddo ma magico.",
-    'Nel {2004} è nata la persona che mi ha cambiato la vità.',
+    { part: 'mese', text: 'Sono il numero che viene subito dopo dieci.', choices: ['10', '11', '12'], answer: '11' },
+    { part: 'età', text: 'Due dozzine di candeline meno due: quante ne spegni?', choices: ['20', '22', '24'], answer: '22' },
+    { part: 'anno', text: 'Parti dal 2000 e aggiungi il quadrato di due.', choices: ['2002', '2004', '2008'], answer: '2004' },
+    { part: 'giorno', text: 'Il giorno è il doppio di tre moltiplicato per tre.', choices: ['9', '18', '27'], answer: '18' },
   ],
+  passwordOrder: ['mese', 'età', 'anno', 'giorno'],
 
   title: 'Ventidue anni di te',
   intro: 'Scorri piano: vedremo insieme da quando eri piccola fino alla magnifica donna che sei ora.',
@@ -122,9 +137,9 @@ window.SITE = {
   couponsText: 'Quattro regali solo per te. Gratta con il dito e scopri cosa hai vinto.',
   coupons: [
     { title: 'Un Funko Pop di Heisenberg', note: 'say my name' },
-    { title: 'Una cena di sushi', note: 'offro io' },
+    { title: 'Una scimmia pupazzo enorme', note: 'gigante' },
     { title: 'Un basket pieno di cose che ami', note: '' },
-    { title: 'Una giornata di shopping', note: 'offro io' },
+    { title: 'Una cena di sushi', note: 'offro io' },
   ],
 
   // ANIMAZIONE DI CARICAMENTO dopo la password giusta

@@ -3,13 +3,53 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Il regalo</title>
+  <title>Un regalo speciale per Zaira</title>
+  <meta name="description" content="Un piccolo viaggio nei nostri ricordi, creato con tutto il mio amore. Apri quando sarà il momento 💖">
+  <meta name="theme-color" content="#3d0d4f">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="it_IT">
+  <meta property="og:url" content="https://mauroleolakyy.github.io/regalozaira/regalo.html">
+  <meta property="og:title" content="Un regalo speciale per Zaira">
+  <meta property="og:description" content="Un piccolo viaggio nei nostri ricordi, creato con tutto il mio amore. Apri quando sarà il momento 💖">
+  <meta property="og:image" content="https://mauroleolakyy.github.io/regalozaira/assets/img/IMG%20(1).png">
+  <meta property="og:image:secure_url" content="https://mauroleolakyy.github.io/regalozaira/assets/img/IMG%20(1).png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:alt" content="Zaira e Mauro insieme">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Un regalo speciale per Zaira">
+  <meta name="twitter:description" content="Un piccolo viaggio nei nostri ricordi, creato con tutto il mio amore. Apri quando sarà il momento 💖">
+  <meta name="twitter:image" content="https://mauroleolakyy.github.io/regalozaira/assets/img/IMG%20(1).png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=DM+Sans:wght@400;500&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body class="gift-page" style="background-color:#cf2269">
+
+  <div id="countdown" role="region" aria-labelledby="countdownTitle">
+    <div class="countdown-card">
+      <p class="countdown-kicker">Una sorpresa speciale</p>
+      <h1 id="countdownTitle">Ci siamo quasi!</h1>
+      <p id="countdownDate"></p>
+      <div class="countdown-clock" aria-label="Tempo rimanente">
+        <div><b data-countdown="days">0</b><span>giorni</span></div>
+        <div><b data-countdown="hours">00</b><span>ore</span></div>
+        <div><b data-countdown="minutes">00</b><span>minuti</span></div>
+        <div><b data-countdown="seconds">00</b><span>secondi</span></div>
+      </div>
+      <section id="countdownReveals" aria-labelledby="countdownRevealTitle">
+        <p id="countdownRevealTitle">Una piccola lettera al giorno</p>
+        <p id="countdownRevealTimerLabel">La prossima busta si apre tra</p>
+        <p id="countdownRevealTimer" aria-label="Tempo alla prossima rivelazione">00:00:00</p>
+        <button id="countdownEnvelope" type="button" disabled aria-expanded="false">
+          <span aria-hidden="true">✉</span>
+          <span id="countdownEnvelopeLabel">La prima busta si apre a mezzanotte</span>
+        </button>
+        <p id="countdownRevealText" aria-live="polite" hidden></p>
+      </section>
+      <p id="countdownError" hidden></p>
+    </div>
+  </div>
 
   <main class="giftwrap" id="wrap">
     <a class="back" href="index.html">← torna alla festa</a>
@@ -41,6 +81,7 @@
 
   <script src="data.js"></script>
   <script src="assets/js/sfx.js"></script>
+  <script src="assets/js/countdown.js"></script>
   <script src="assets/js/regalo.js"></script>
 </body>
 </html>
