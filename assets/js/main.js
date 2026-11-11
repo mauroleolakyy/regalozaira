@@ -209,7 +209,8 @@
               <svg viewBox="0 0 400 300" role="group" aria-label="Torta con le candeline"></svg>
               <p id="cakeCount" aria-live="polite"></p>
               <p class="cakeNote">Esprimi un desiderio e spegni le candeline: toccale una a una oppure soffia nel microfono.</p>
-              <div class="cakeBtns"><button id="blow" type="button" hidden>Soffia nel microfono</button><button id="relight" type="button" hidden>Riaccendi</button></div>
+              <div class="cakeBtns"><button id="blow" type="button" aria-pressed="false" hidden>Soffia nel microfono</button><button id="relight" type="button" hidden>Riaccendi</button></div>
+              <p id="cakeMicStatus" aria-live="polite"></p>
             </div>
             <p class="sign">${esc(d.finalSign)}</p>
             <button id="party" type="button" hidden>Auguri Amore!</button>
@@ -251,7 +252,7 @@
     const svg = $('#cake svg'); if (!svg) return;
     const N = SITE.age || 22, cols = ['#ff8fc7', '#8fd3ff', '#ffe36e', '#c9b6ff'], r = rng(42);
     const nb = Math.ceil(N / 2), nf = N - nb;
-    const candle = (x, y, i) => `<g class="candle lit" role="button" tabindex="0" aria-label="Spegni la candelina ${i + 1}">
+    const candle = (x, y, i, side) => `<g class="candle lit" data-side="${side}" role="button" tabindex="0" aria-label="Spegni la candelina ${i + 1}">
       <rect x="${x - 12}" y="${y - 64}" width="24" height="72" fill="#000" fill-opacity="0"/>
       <rect x="${x - 4}" y="${y - 34}" width="8" height="34" rx="2" fill="${cols[i % 4]}"/><rect x="${x - 2}" y="${y - 31}" width="2.5" height="26" rx="1" fill="#fff" opacity=".55"/>
       <path class="flame" d="M${x} ${y - 62}q-9 13 0 24 9-11 0-24z" fill="#ffe36e"/><path class="flame" d="M${x} ${y - 54}q-4.5 8 0 14 4.5-6 0-14z" fill="#ff8a3d"/>
@@ -259,8 +260,8 @@
     let sp = '', cs = '';
     for (let i = 0; i < 26; i++) sp += `<rect x="${55 + r() * 290}" y="${208 + r() * 56}" width="9" height="3.5" rx="1.7" fill="${cols[i % 4]}" transform="rotate(${Math.round(r() * 180)} 200 230)"/>`;
     for (let i = 0; i < 10; i++) cs += `<circle cx="${51.5 + 33 * i}" cy="196" r="16.5" fill="#fff4e0"/>`;
-    const back = Array.from({ length: nb }, (_, i) => candle(nb > 1 ? 70 + i * (260 / (nb - 1)) : 200, 158, i)).join('');
-    const front = Array.from({ length: nf }, (_, i) => candle(nf > 1 ? 84 + i * (260 / (nf - 1)) : 200, 188, nb + i)).join('');
+    const back = Array.from({ length: nb }, (_, i) => candle(nb > 1 ? 70 + i * (260 / (nb - 1)) : 200, 158, i, 'back')).join('');
+    const front = Array.from({ length: nf }, (_, i) => candle(nf > 1 ? 84 + i * (260 / (nf - 1)) : 200, 188, nb + i, 'front')).join('');
     svg.innerHTML = `<ellipse cx="200" cy="274" rx="192" ry="18" fill="#ffc2e2"/>
       <path d="M35 172V262A165 34 0 0 0 365 262V172Z" fill="#ff8fc7"/>${sp}
       <rect x="35" y="172" width="330" height="24" fill="#fff4e0"/>${cs}
@@ -281,26 +282,99 @@
     };
     svg.addEventListener('click', e => snuff(e.target.closest('.candle')));
     svg.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); snuff(e.target.closest('.candle')); } });
-    relight.addEventListener('click', () => { fx('pop'); $$('.candle', svg).forEach(c => { c.classList.add('lit'); c.classList.remove('puff'); }); lit = N; refresh(); });
+    let micSession = null;
+    const stopMicrophone = session => {
+      if (!session) return;
+      session.cancelled = true;
+      cancelAnimationFrame(session.frame);
+      if (session.stream) session.stream.getTracks().forEach(track => track.stop());
+      if (session.context && session.context.state !== 'closed') session.context.close().catch(() => {});
+      if (micSession === session) {
+        micSession = null;
+        blow.textContent = 'Soffia nel microfono';
+        blow.setAttribute('aria-pressed', 'false');
+      }
+    };
+    relight.addEventListener('click', () => {
+      stopMicrophone(micSession);
+      fx('pop');
+      $$('.candle', svg).forEach(c => { c.classList.add('lit'); c.classList.remove('puff'); });
+      lit = N;
+      refresh();
+    });
 
-    // Soffio nel microfono: più forte soffia, più candeline si spengono
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) blow.hidden = false;
+    // Ogni soffio spegne fino a cinque candeline casuali dello stesso lato.
+    const micAvailable = window.isSecureContext && navigator.mediaDevices &&
+      navigator.mediaDevices.getUserMedia && (window.AudioContext || window.webkitAudioContext);
+    if (micAvailable) blow.hidden = false;
+    else $('.cakeNote').textContent = 'Esprimi un desiderio e spegni le candeline toccandole una a una.';
     blow.addEventListener('click', async () => {
+      if (micSession) {
+        stopMicrophone(micSession);
+        return;
+      }
+      const session = { cancelled: false, frame: 0, stream: null, context: null };
+      micSession = session;
+      blow.textContent = 'Attendo il microfono…';
+      blow.setAttribute('aria-pressed', 'true');
       try {
-        const st = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const ac = new (window.AudioContext || window.webkitAudioContext)(), an = ac.createAnalyser();
-        an.fftSize = 512; ac.createMediaStreamSource(st).connect(an);
-        const buf = new Uint8Array(an.fftSize); blow.textContent = 'Sto ascoltando… soffia!';
-        const stop = () => { st.getTracks().forEach(t => t.stop()); ac.close(); blow.textContent = 'Soffia nel microfono'; };
+        const AudioContextType = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextType) throw new Error('AudioContext non supportato');
+        session.context = new AudioContextType();
+        if (session.context.state === 'suspended') await session.context.resume();
+        if (session.cancelled) { stopMicrophone(session); return; }
+        session.stream = await navigator.mediaDevices.getUserMedia({
+          audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+        });
+        if (session.cancelled) { stopMicrophone(session); return; }
+        const an = session.context.createAnalyser();
+        an.fftSize = 512;
+        session.context.createMediaStreamSource(session.stream).connect(an);
+        const buf = new Uint8Array(an.fftSize);
+        let ambient = 0, loudFrames = 0, puffActive = false;
+        blow.textContent = 'Sto ascoltando… soffia! (tocca per fermare)';
         const tick = () => {
+          if (session.cancelled) return;
           an.getByteTimeDomainData(buf);
           let sum = 0; for (const v of buf) { const x = (v - 128) / 128; sum += x * x; }
           const level = Math.sqrt(sum / buf.length);
-          if (level > .12) { const on = $$('.candle.lit', svg); for (let i = 0; i < Math.min(on.length, Math.ceil(level * 14)); i++) snuff(on[Math.floor(Math.random() * on.length)]); }
-          if (lit > 0 && document.body.contains(svg)) requestAnimationFrame(tick); else stop();
+          const threshold = Math.max(.075, ambient * 2.8);
+          if (level < threshold) ambient = ambient * .98 + level * .02;
+          if (level > threshold) {
+            loudFrames++;
+            if (loudFrames >= 2 && !puffActive) {
+              puffActive = true;
+              const sides = [...new Set($$('.candle.lit', svg).map(c => c.dataset.side))];
+              const side = sides[Math.floor(Math.random() * sides.length)];
+              const candidates = $$('.candle.lit', svg).filter(c => c.dataset.side === side);
+              for (let i = candidates.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+              }
+              candidates.slice(0, 5).forEach(snuff);
+              loudFrames = 0;
+            }
+          } else {
+            loudFrames = 0;
+            puffActive = false;
+          }
+          if (lit > 0 && document.body.contains(svg)) session.frame = requestAnimationFrame(tick);
+          else stopMicrophone(session);
         };
         tick();
-      } catch (e) { blow.textContent = 'Microfono non disponibile: tocca le candeline'; blow.disabled = true; }
+      } catch (e) {
+        stopMicrophone(session);
+        blow.textContent = 'Riprova con il microfono';
+        const status = e.name === 'NotAllowedError' || e.name === 'SecurityError'
+          ? 'Accesso al microfono negato. Consenti il microfono nelle impostazioni di Safari, oppure tocca le candeline.'
+          : e.name === 'NotFoundError'
+            ? 'Microfono non trovato. Puoi spegnere le candeline toccandole.'
+            : 'Microfono non disponibile. Riprova o tocca le candeline.';
+        $('#cakeMicStatus').textContent = status;
+      }
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopMicrophone(micSession);
     });
     refresh();
   }
@@ -607,27 +681,135 @@
   /* ---------- Giochino iniziale + password (controllo nel browser) ---------- */
   const SITE = window.SITE;
   const lock = $('#lock'), form = $('#lockForm'), err = $('#err');
-  const KEY = 'zaira-unlocked';
+  const KEY = 'zaira-unlocked-v2';
   const norm = v => String(v).toLowerCase().replace(/[^a-z0-9]/g, '');
   paintDrip($('#lockDrip'), 5);
 
   $('#lockText').textContent = SITE.lockText || '';
-  const total = (SITE.clues || []).length;
-  let found = 0;
-  const count = () => { $('#found').textContent = total ? `Indizi trovati: ${found} su ${total}` : ''; };
-  (SITE.clues || []).forEach((t, i) => {
+  const clues = SITE.clues || [];
+  const total = clues.length;
+  const fragments = [];
+  let revealed = 0, solved = 0, sequence = [];
+  const count = () => {
+    $('#found').textContent = total ? `Carte girate: ${revealed} su ${total} · Indovinelli risolti: ${solved} su ${total}` : '';
+  };
+  const slots = $('#codeSlots'), fragmentBox = $('#codeFragments'), puzzle = $('#codePuzzle');
+  const codePrompt = $('#codePrompt'), passwordInput = $('#pw'), openButton = $('#openButton');
+  if (!total) {
+    passwordInput.disabled = false;
+    openButton.disabled = false;
+  }
+  const renderSequence = () => {
+    slots.innerHTML = '';
+    sequence.forEach((fragment, i) => {
+      const item = document.createElement('li');
+      item.textContent = `${i + 1}. ${fragment.part}: ${fragment.value}`;
+      slots.appendChild(item);
+    });
+    for (let i = sequence.length; i < SITE.passwordOrder.length; i++) {
+      const item = document.createElement('li');
+      item.textContent = `${i + 1}. ?`;
+      slots.appendChild(item);
+    }
+  };
+  const resetSequence = () => {
+    sequence = [];
+    renderSequence();
+    codePrompt.textContent = 'Tocca i frammenti nell’ordine richiesto.';
+  };
+  const finishPuzzle = () => {
+    if (solved !== total) return;
+    puzzle.hidden = false;
+    const shuffled = [...fragments];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    fragmentBox.replaceChildren();
+    shuffled.forEach(fragment => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'fragment';
+      button.textContent = `${fragment.part}: ${fragment.value}`;
+      button.addEventListener('click', () => {
+        if (!passwordInput.disabled) return;
+        if (!sequence.length) codePrompt.textContent = 'Tocca i frammenti nell’ordine richiesto.';
+        if (sequence.length >= SITE.passwordOrder.length) resetSequence();
+        sequence.push(fragment);
+        renderSequence();
+        fx('flip');
+        if (sequence.length !== SITE.passwordOrder.length) return;
+        const correct = sequence.every((item, i) => item.part === SITE.passwordOrder[i]);
+        if (correct) {
+          codePrompt.textContent = 'Codice ricomposto! Ora inseriscilo per aprire il regalo.';
+          passwordInput.disabled = false;
+          passwordInput.placeholder = 'Inserisci il codice ricomposto';
+          openButton.disabled = false;
+          $('#resetCode').disabled = true;
+          fragmentBox.querySelectorAll('button').forEach(item => { item.disabled = true; });
+          passwordInput.focus();
+          fx('ding');
+        } else {
+          codePrompt.textContent = 'Non è l’ordine giusto. Riprova!';
+          sequence = [];
+          renderSequence();
+          fx('error');
+        }
+      });
+      fragmentBox.appendChild(button);
+    });
+    renderSequence();
+  };
+  clues.forEach((clue, i) => {
     const li = document.createElement('li'), b = document.createElement('button');
     b.type = 'button'; b.className = 'clue'; b.textContent = '?';
     b.setAttribute('aria-label', `Gira la carta ${i + 1}`);
     b.addEventListener('click', () => {
       if (b.classList.contains('open')) return;
       b.classList.add('open');
-      b.innerHTML = esc(t).replace(/\{(.+?)\}/g, '<mark>$1</mark>');
-      found++; count(); fx(found === total ? 'ding' : 'flip');
+      b.disabled = true;
+      b.textContent = clue.text;
+      revealed++;
+      const answers = document.createElement('div');
+      answers.className = 'clue-answers';
+      const feedback = document.createElement('p');
+      feedback.className = 'answer-feedback';
+      feedback.setAttribute('aria-live', 'polite');
+      clue.choices.forEach(choice => {
+        const answer = document.createElement('button');
+        answer.type = 'button';
+        answer.className = 'answer';
+        answer.textContent = choice;
+        answer.addEventListener('click', () => {
+          if (answers.dataset.solved) return;
+          if (choice === clue.answer) {
+            answers.dataset.solved = 'true';
+            answers.querySelectorAll('button').forEach(button => { button.disabled = true; });
+            answer.classList.add('correct');
+            fragments.push({ part: clue.part, value: choice });
+            solved++;
+            feedback.textContent = `Indovinello risolto! Frammento: ${clue.part}, ${choice}.`;
+            count();
+            fx('ding');
+            finishPuzzle();
+          } else {
+            answer.classList.add('wrong');
+            answer.disabled = true;
+            feedback.textContent = 'Non è la risposta giusta: prova un altro numero.';
+            fx('error');
+          }
+        });
+        answers.appendChild(answer);
+      });
+      answers.appendChild(feedback);
+      li.appendChild(answers);
+      count();
+      fx('flip');
     });
     li.appendChild(b); $('#clues').appendChild(li);
   });
   count();
+  $('#resetCode').addEventListener('click', resetSequence);
 
   const parseSpotify = v => {
     const m = String(v || '').match(/(?:open\.spotify\.com\/(?:intl-[a-z]+\/)?|spotify:)(track|album|playlist|episode|artist|show)[\/:]([A-Za-z0-9]+)/);
